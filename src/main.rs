@@ -3,6 +3,8 @@
 // Overwrite entry point
 #![no_main]
 
+mod vga_buffer;
+
 use core::panic::PanicInfo;
 
 
