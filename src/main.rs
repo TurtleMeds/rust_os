@@ -7,7 +7,6 @@ mod vga_buffer;
 
 use core::panic::PanicInfo;
 
-
 static HELLO: &[u8] = b"Hello, World";
 
 // disable name mangling so the "_start" function is actually named "_start" and not

@@ -20,6 +20,7 @@ pub enum Color {
     Yellow = 14,
     White = 15,
 }
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
 // Create a type "ColorCode" to use background and foreground colors
@@ -30,3 +31,60 @@ impl ColorCode {
         ColorCode((background as u8) << 4 | (foreground as u8))
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(C)]
+struct ScreenChar {
+    ascii_char: u8,
+    color_code: ColorCode,
+}
+
+const BUFFER_HEIGHT:usize = 25;
+const BUFFER_WIDTH:usize = 80;
+
+#[repr(transparent)]
+struct Buffer {
+    // Create an array of arrays to hold all chars on the screen
+    chars : [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+}
+
+pub struct Writer {
+    column_position: usize,
+    color_code: ColorCode,
+    buffer: &'static mut Buffer,
+}
+
+impl Writer {
+    pub fn write_byte(&mut self, byte: u8) {
+        match byte {
+            b'\n' => self.newline(),
+            byte => {
+                if self.column_position >= BUFFER_WIDTH {
+                    self.newline();
+                }
+
+                let row = BUFFER_HEIGHT -1;
+                let col = self.column_position;
+
+                let color_code = self.color_code;
+
+                self.buffer.chars[row][col] = ScreenChar {
+                    ascii_char: byte,
+                    color_code,
+                };
+                self.column_position += 1
+            }
+        }
+    }
+    pub fn write_string(&mut self, s: &str) {
+        for byte in s.bytes() {
+            match byte {
+                // ASCII byte or newline => write the byte
+                0x20..=0x7e | b'\n' => self.write_byte(byte),
+                _ => self.write_byte(0xfe),
+            }
+        }
+    }
+    fn newline(&mut self) {/* TODO */}
+}
+
