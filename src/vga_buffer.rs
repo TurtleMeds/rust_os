@@ -70,7 +70,7 @@ impl Writer {
 
                 let color_code = self.color_code;
 
-                self.buffer.chars[row][col] = write(ScreenChar {
+                self.buffer.chars[row][col].write(ScreenChar {
                     ascii_char: byte,
                     color_code,
                 });
@@ -97,5 +97,5 @@ pub fn print_smth() {
     };
     writer.write_byte(b'H');
     writer.write_string("ello ");
-    writer.write_string("Wörld!");
+    writer.write_string("World!");
 }
