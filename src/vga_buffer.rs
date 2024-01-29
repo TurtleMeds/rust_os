@@ -3,10 +3,21 @@ use core::fmt::{self, Write};
 use lazy_static::lazy_static;
 use spin::Mutex;
 
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-// Create an enum for all of the different colors in VGA
+// Create an enum for all of the different VGA buffer colors
 pub enum Color {
     Black = 0,
     Blue = 1,
@@ -44,8 +55,8 @@ struct ScreenChar {
     color_code: ColorCode,
 }
 
-const BUFFER_HEIGHT:usize = 25;
-const BUFFER_WIDTH:usize = 80;
+const BUFFER_HEIGHT: usize = 25;
+const BUFFER_WIDTH: usize = 80;
 
 #[repr(transparent)]
 struct Buffer {
@@ -92,7 +103,7 @@ impl Writer {
     }
     fn newline(&mut self) {
         for row in 1..BUFFER_HEIGHT {
-            for col in 1..BUFFER_WIDTH {
+            for col in 0..BUFFER_WIDTH {
                 let char = self.buffer.chars[row][col].read();
                 self.buffer.chars[row - 1][col].write(char);
             }
@@ -115,6 +126,12 @@ impl fmt::Write for Writer {
         self.write_string(s);
         Ok(())
     }
+}
+
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
 }
 
 lazy_static! {

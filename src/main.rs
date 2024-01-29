@@ -17,10 +17,7 @@ use core::panic::PanicInfo;
 // most systems
 pub extern "C" fn _start() -> ! { // the return type "!" means the function is never
                                   // allowed to return
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
-    write!(vga_buffer::WRITER.lock(), ", Some numbers: {}, {}", 42, 1.337).unwrap();
-
+    println!("Hello, World{}", "!");
     loop{}
 }
 
@@ -28,5 +25,6 @@ pub extern "C" fn _start() -> ! { // the return type "!" means the function is n
 #[panic_handler]
 // this function is called on panic
 fn panic(_info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop{}
 }
