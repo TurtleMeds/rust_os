@@ -17,7 +17,9 @@ use core::panic::PanicInfo;
 // most systems
 pub extern "C" fn _start() -> ! { // the return type "!" means the function is never
                                   // allowed to return
-    vga_buffer::print_smth();
+    use core::fmt::Write;
+    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
+    write!(vga_buffer::WRITER.lock(), ", Some numbers: {}, {}", 42, 1.337).unwrap();
 
     loop{}
 }
