@@ -35,16 +35,38 @@ pub extern "C" fn _start() -> ! { // the return type "!" means the function is n
 }
 
 // PANIC HANDLER
+#[cfg(not(test))]
 #[panic_handler]
-// this function is called on panic
+// and this one in non-test mode
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
+    loop {}
+}
+
+#[cfg(test)]
+#[panic_handler]
+// and this one in test mode
+fn panic(info: &PanicInfo) -> ! {
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", info);
+    exit_qemu(QemuExitCode::Failed);
     loop{}
 }
 // TESTING
+
+pub trait Testable {
+    fn run(&self) -> ();
+}
+impl Testable for T where T: Fn() {
+    fn run(&self) -> () {
+        serial_print!("{}...\t", core::any::type_name::<T>());
+        self();
+        serial_println!("[ok]");
+    }
+}
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
-enum QemuExitCode {
+pub enum QemuExitCode {
     Success = 0x10,
     Failed = 0x11,
 }
@@ -59,17 +81,15 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 }
 
 #[cfg(test)]
-pub fn test_runner(tests: &[&dyn Fn()]) {
+pub fn test_runner(tests: &[&dyn Testable]) {
     println!("Running {} tests...", tests.len());
     for test in tests {
-        test();
+        test.run();
     }
     exit_qemu(QemuExitCode::Success);
 }
 
 #[test_case]
 fn trivial_assertion() {
-    println!("trivial assertion...");
     assert_eq!(1, 1);
-    println!("[ok]");
 }
