@@ -10,6 +10,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 mod vga_buffer;
+mod serial;
 
 use core::panic::PanicInfo;
 
@@ -49,10 +50,10 @@ enum QemuExitCode {
 }
 
 pub fn exit_qemu(exit_code: QemuExitCode) {
-    use x86_64::instructions::port::Port
+    use x86_64::instructions::port::Port;
 
     unsafe {
-        port = Port::new(0xf4);
+        let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
     }
 }
@@ -63,6 +64,7 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
     for test in tests {
         test();
     }
+    exit_qemu(QemuExitCode::Success);
 }
 
 #[test_case]
