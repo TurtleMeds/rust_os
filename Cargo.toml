@@ -8,12 +8,6 @@ edition = "2018"
 [target.'cfg(target_os = "none")']
 runner = "bootimage runner"
 
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-panic = "abort"
-
 [dependencies]
 bootloader = "0.9.23"
 volatile = "0.2.6"
