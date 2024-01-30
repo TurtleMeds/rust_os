@@ -18,13 +18,15 @@ use core::panic::PanicInfo;
 pub extern "C" fn _start() -> ! { // the return type "!" means the function is never
                                   // allowed to return
     println!("Hello, World{}", "!");
+    println!("Second line.");
+    println!("Third!");
     loop{}
 }
 
 // PANIC HANDLER
 #[panic_handler]
 // this function is called on panic
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     loop{}
 }
