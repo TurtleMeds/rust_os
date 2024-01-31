@@ -57,7 +57,7 @@ fn panic(info: &PanicInfo) -> ! {
 pub trait Testable {
     fn run(&self) -> ();
 }
-impl Testable for T where T: Fn() {
+impl<T> Testable for T where T: Fn(), {
     fn run(&self) -> () {
         serial_print!("{}...\t", core::any::type_name::<T>());
         self();
