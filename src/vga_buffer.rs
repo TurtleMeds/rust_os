@@ -141,3 +141,25 @@ lazy_static! {
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
+
+#[test_case]
+fn println_simple() {
+    println!("test: println simple output");
+}
+
+#[test_case]
+fn println_many() {
+    for _ in 0..200 {
+        println!("test: println many output");
+    }
+}
+
+#[test_case]
+fn println_output() {
+    let s = "abcdefghijklmnopqrstuvwxyz1234567890";
+    println!("{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(char::from(screen_char.ascii_char), c);
+    }
+}
